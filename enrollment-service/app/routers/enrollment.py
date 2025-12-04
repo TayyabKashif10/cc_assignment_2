@@ -1,20 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.database import SessionLocal
+from app.database import get_db
 from app.models.enrollment import Enrollment
 
 router = APIRouter(
     prefix="/enrollments",
     tags=["enrollments"]
 )
-
-# Dependency to get DB session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.post("/")
 def create_enrollment(student_id: int, course_id: int, db: Session = Depends(get_db)):
