@@ -5,6 +5,13 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from urllib.parse import quote_plus
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
+# Enable HTTPConnection debug logging
+import http.client
+http.client.HTTPConnection.debuglevel = 1
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -31,6 +38,7 @@ def create_student(name: str, email: str):
     # Manually build query string
     url = f"http://{STUDENT_SERVICE}/students/?name={quote_plus(name)}&email={quote_plus(email)}"
     requests.post(url)
+    
     return RedirectResponse("/", status_code=303)
 
 @app.post("/students/delete")
