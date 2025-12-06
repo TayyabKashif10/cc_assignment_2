@@ -6,7 +6,7 @@
 </head>
 <body>
 <h1>Students</h1>
-<form action="/students/create" method="post">
+<form id="student-form">
     <input name="name" placeholder="Name" required>
     <input name="email" placeholder="Email" required>
     <button type="submit">Create</button>
@@ -23,7 +23,7 @@
 </ul>
 
 <h1>Courses</h1>
-<form action="/courses/create" method="post">
+<form id="course-form">
     <input name="title" placeholder="Title" required>
     <input name="description" placeholder="Description">
     <button type="submit">Create</button>
@@ -40,7 +40,7 @@
 </ul>
 
 <h1>Enrollments</h1>
-<form action="/enrollments/create" method="post">
+<form id="enrollment-form">
     <select name="student_id" required>
         {% for student in students %}
         <option value="{{ student.id }}">{{ student.name }}</option>
@@ -58,5 +58,31 @@
     <li>Student ID: {{ enrollment.student_id }}, Course ID: {{ enrollment.course_id }}</li>
     {% endfor %}
 </ul>
+
+<script>
+// Students form: submit as query parameters
+document.getElementById("student-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    const name = encodeURIComponent(this.name.value);
+    const email = encodeURIComponent(this.email.value);
+    window.location.href = `/students/create?name=${name}&email=${email}`;
+});
+
+// Courses form: submit as query parameters
+document.getElementById("course-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    const title = encodeURIComponent(this.title.value);
+    const description = encodeURIComponent(this.description.value);
+    window.location.href = `/courses/create?title=${title}&description=${description}`;
+});
+
+// Enrollments form: submit as query parameters
+document.getElementById("enrollment-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    const student_id = encodeURIComponent(this.student_id.value);
+    const course_id = encodeURIComponent(this.course_id.value);
+    window.location.href = `/enrollments/create?student_id=${student_id}&course_id=${course_id}`;
+});
+</script>
 </body>
 </html>

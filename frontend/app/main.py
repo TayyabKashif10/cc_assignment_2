@@ -1,6 +1,6 @@
 import os
 import requests
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -34,7 +34,7 @@ def index(request: Request):
     )
 
 @app.post("/students/create")
-def create_student(name: str = Form(...), email: str = Form(...)):
+def create_student(name:str, email: str):
     print("RECEIVED: ", name, email)
     # Manually build query string
     url = f"http://{STUDENT_SERVICE}/students/?name={quote_plus(name)}&email={quote_plus(email)}"
