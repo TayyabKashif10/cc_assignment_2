@@ -4,6 +4,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from urllib.parse import quote_plus
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -27,8 +28,9 @@ def index(request: Request):
 
 @app.post("/students/create")
 def create_student(name: str, email: str):
-    # Send as query parameters
-    requests.post(f"http://{STUDENT_SERVICE}/students/", params={"name": name, "email": email})
+    # Manually build query string
+    url = f"http://{STUDENT_SERVICE}/students/?name={quote_plus(name)}&email={quote_plus(email)}"
+    requests.post(url)
     return RedirectResponse("/", status_code=303)
 
 @app.post("/students/delete")
@@ -38,7 +40,8 @@ def delete_student(student_id: int):
 
 @app.post("/courses/create")
 def create_course(title: str, description: str = ""):
-    requests.post(f"http://{COURSE_SERVICE}/courses/", params={"title": title, "description": description})
+    url = f"http://{COURSE_SERVICE}/courses/?title={quote_plus(title)}&description={quote_plus(description)}"
+    requests.post(url)
     return RedirectResponse("/", status_code=303)
 
 @app.post("/courses/delete")
@@ -48,8 +51,6 @@ def delete_course(course_id: int):
 
 @app.post("/enrollments/create")
 def create_enrollment(student_id: int, course_id: int):
-    requests.post(
-        f"http://{ENROLLMENT_SERVICE}/enrollments/",
-        params={"student_id": student_id, "course_id": course_id}
-    )
+    url = f"http://{ENROLLMENT_SERVICE}/enrollments/?student_id={student_id}&course_id={course_id}"
+    requests.post(url)
     return RedirectResponse("/", status_code=303)
