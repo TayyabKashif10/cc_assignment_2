@@ -35,6 +35,7 @@ def index(request: Request):
 
 @app.post("/students/create")
 def create_student(name: str, email: str):
+    print("RECEIVED: ", name, email)
     # Manually build query string
     url = f"http://{STUDENT_SERVICE}/students/?name={quote_plus(name)}&email={quote_plus(email)}"
     requests.post(url)
