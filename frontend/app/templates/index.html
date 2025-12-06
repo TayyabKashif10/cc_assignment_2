@@ -60,28 +60,34 @@
 </ul>
 
 <script>
-// Students form: submit as query parameters
+// Helper function to POST with query parameters
+async function postWithQuery(url, params) {
+    const query = new URLSearchParams(params).toString();
+    await fetch(`${url}?${query}`, { method: 'POST' });
+}
+
+// Students form
 document.getElementById("student-form").addEventListener("submit", function(e){
     e.preventDefault();
-    const name = encodeURIComponent(this.name.value);
-    const email = encodeURIComponent(this.email.value);
-    window.location.href = `/students/create?name=${name}&email=${email}`;
+    const name = this.name.value;
+    const email = this.email.value;
+    postWithQuery('/students/create', { name, email });
 });
 
-// Courses form: submit as query parameters
+// Courses form
 document.getElementById("course-form").addEventListener("submit", function(e){
     e.preventDefault();
-    const title = encodeURIComponent(this.title.value);
-    const description = encodeURIComponent(this.description.value);
-    window.location.href = `/courses/create?title=${title}&description=${description}`;
+    const title = this.title.value;
+    const description = this.description.value;
+    postWithQuery('/courses/create', { title, description });
 });
 
-// Enrollments form: submit as query parameters
+// Enrollments form
 document.getElementById("enrollment-form").addEventListener("submit", function(e){
     e.preventDefault();
-    const student_id = encodeURIComponent(this.student_id.value);
-    const course_id = encodeURIComponent(this.course_id.value);
-    window.location.href = `/enrollments/create?student_id=${student_id}&course_id=${course_id}`;
+    const student_id = this.student_id.value;
+    const course_id = this.course_id.value;
+    postWithQuery('/enrollments/create', { student_id, course_id });
 });
 </script>
 </body>
