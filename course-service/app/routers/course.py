@@ -5,7 +5,7 @@ from app.models.course import Course
 
 router = APIRouter(prefix="/courses", tags=["courses"])
 
-@router.post("/")s
+@router.post("/")
 def create_course(title: str, description: str = None, db: Session = Depends(get_db)):
     course = Course(title=title, description=description)
     db.add(course)

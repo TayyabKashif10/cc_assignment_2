@@ -1,6 +1,6 @@
 import os
 import requests
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -20,29 +20,36 @@ def index(request: Request):
     students = requests.get(f"http://{STUDENT_SERVICE}/students/").json()
     courses = requests.get(f"http://{COURSE_SERVICE}/courses/").json()
     enrollments = requests.get(f"http://{ENROLLMENT_SERVICE}/enrollments/").json()
-    return templates.TemplateResponse("index.html", {"request": request, "students": students, "courses": courses, "enrollments": enrollments})
+    return templates.TemplateResponse(
+        "index.html",
+        {"request": request, "students": students, "courses": courses, "enrollments": enrollments}
+    )
 
 @app.post("/students/create")
-def create_student(name: str = Form(...), email: str = Form(...)):
-    requests.post(f"http://{STUDENT_SERVICE}/students/", data={"name": name, "email": email})
+def create_student(name: str, email: str):
+    # Send as query parameters
+    requests.post(f"http://{STUDENT_SERVICE}/students/", params={"name": name, "email": email})
     return RedirectResponse("/", status_code=303)
 
 @app.post("/students/delete")
-def delete_student(student_id: int = Form(...)):
+def delete_student(student_id: int):
     requests.delete(f"http://{STUDENT_SERVICE}/students/{student_id}")
     return RedirectResponse("/", status_code=303)
 
 @app.post("/courses/create")
-def create_course(title: str = Form(...), description: str = Form("")):
-    requests.post(f"http://{COURSE_SERVICE}/courses/", data={"title": title, "description": description})
+def create_course(title: str, description: str = ""):
+    requests.post(f"http://{COURSE_SERVICE}/courses/", params={"title": title, "description": description})
     return RedirectResponse("/", status_code=303)
 
 @app.post("/courses/delete")
-def delete_course(course_id: int = Form(...)):
+def delete_course(course_id: int):
     requests.delete(f"http://{COURSE_SERVICE}/courses/{course_id}")
     return RedirectResponse("/", status_code=303)
 
 @app.post("/enrollments/create")
-def create_enrollment(student_id: int = Form(...), course_id: int = Form(...)):
-    requests.post(f"http://{ENROLLMENT_SERVICE}/enrollments/", data={"student_id": student_id, "course_id": course_id})
+def create_enrollment(student_id: int, course_id: int):
+    requests.post(
+        f"http://{ENROLLMENT_SERVICE}/enrollments/",
+        params={"student_id": student_id, "course_id": course_id}
+    )
     return RedirectResponse("/", status_code=303)
