@@ -14,7 +14,7 @@
 <ul>
     {% for student in students %}
     <li>{{ student.name }} ({{ student.email }})
-        <form action="/students/delete" method="post" style="display:inline;">
+        <form class="delete-form" action="/students/delete" method="post" style="display:inline;">
             <input type="hidden" name="student_id" value="{{ student.id }}">
             <button type="submit">Delete</button>
         </form>
@@ -31,7 +31,7 @@
 <ul>
     {% for course in courses %}
     <li>{{ course.title }} ({{ course.description }})
-        <form action="/courses/delete" method="post" style="display:inline;">
+        <form class="delete-form" action="/courses/delete" method="post" style="display:inline;">
             <input type="hidden" name="course_id" value="{{ course.id }}">
             <button type="submit">Delete</button>
         </form>
@@ -55,39 +55,69 @@
 </form>
 <ul>
     {% for enrollment in enrollments %}
-    <li>Student ID: {{ enrollment.student_id }}, Course ID: {{ enrollment.course_id }}</li>
+    <li>Student ID: {{ enrollment.student_id }}, Course ID: {{ enrollment.course_id }}
+        <form class="delete-form" action="/enrollments/delete" method="post" style="display:inline;">
+            <input type="hidden" name="student_id" value="{{ enrollment.student_id }}">
+            <input type="hidden" name="course_id" value="{{ enrollment.course_id }}">
+            <button type="submit">Delete</button>
+        </form>
+    </li>
     {% endfor %}
 </ul>
 
 <script>
-// Helper function to POST with query parameters
-async function postWithQuery(url, params) {
+// Helper function to POST with query parameters and reload on success
+async function postWithQueryAndReload(url, params) {
     const query = new URLSearchParams(params).toString();
-    await fetch(`${url}?${query}`, { method: 'POST' });
+    try {
+        const res = await fetch(`${url}?${query}`, { method: 'POST' });
+        if (!res.ok) {
+            const text = await res.text();
+            alert(`Error: ${res.status}\n${text}`);
+            return;
+        }
+        window.location.reload();
+    } catch (err) {
+        alert(`Network error: ${err}`);
+    }
 }
 
-// Students form
+// Create forms
 document.getElementById("student-form").addEventListener("submit", function(e){
     e.preventDefault();
-    const name = this.name.value;
-    const email = this.email.value;
-    postWithQuery('/students/create', { name, email });
+    postWithQueryAndReload('/students/create', {
+        name: this.name.value,
+        email: this.email.value
+    });
 });
 
-// Courses form
 document.getElementById("course-form").addEventListener("submit", function(e){
     e.preventDefault();
-    const title = this.title.value;
-    const description = this.description.value;
-    postWithQuery('/courses/create', { title, description });
+    postWithQueryAndReload('/courses/create', {
+        title: this.title.value,
+        description: this.description.value
+    });
 });
 
-// Enrollments form
 document.getElementById("enrollment-form").addEventListener("submit", function(e){
     e.preventDefault();
-    const student_id = this.student_id.value;
-    const course_id = this.course_id.value;
-    postWithQuery('/enrollments/create', { student_id, course_id });
+    postWithQueryAndReload('/enrollments/create', {
+        student_id: this.student_id.value,
+        course_id: this.course_id.value
+    });
+});
+
+// Delete forms
+document.querySelectorAll('.delete-form').forEach(form => {
+    form.addEventListener("submit", function(e){
+        e.preventDefault();
+        const inputs = this.querySelectorAll("input");
+        const params = {};
+        inputs.forEach(input => {
+            if(input.name && input.value) params[input.name] = input.value;
+        });
+        postWithQueryAndReload(this.action, params);
+    });
 });
 </script>
 </body>
